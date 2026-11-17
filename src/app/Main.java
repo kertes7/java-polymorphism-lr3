@@ -4,11 +4,11 @@ import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 
-import model.Account;
-import model.CreditAccount;
-import model.CurrentAccount;
-import model.DepositAccount;
-import model.SavingsAccount;
+import model.Bus;
+import model.Car;
+import model.Motorcycle;
+import model.Transport;
+import model.Truck;
 
 public class Main {
 
@@ -17,34 +17,33 @@ public class Main {
         PrintStream out = System.out;
 
         // Клієнтський код тримає об'єкти в масиві БАЗОВОГО типу.
-        Account[] accounts = {
-                new SavingsAccount("Іван", 10000, 6),
-                new CurrentAccount("Петро", 2500, 50),
-                new CreditAccount("Олена", -3000, 24),
+        Transport[] fleet = {
+                new Car("Toyota", 3.5),
+                new Truck("Volvo", 9.0),
+                new Motorcycle("Yamaha", 2.0),
         };
 
-        out.println("=== Поліморфна обробка через базовий тип Account ===");
-        process(out, accounts);
+        out.println("=== Поліморфна обробка через базовий тип Transport (поїздка 100 км) ===");
+        process(out, fleet, 100);
 
         // Додаємо НОВИЙ різновид — код обробки process() НЕ змінюється.
-        Account[] extended = new Account[accounts.length + 1];
-        System.arraycopy(accounts, 0, extended, 0, accounts.length);
-        extended[accounts.length] = new DepositAccount("Сергій", 20000, 8);
+        Transport[] extended = new Transport[fleet.length + 1];
+        System.arraycopy(fleet, 0, extended, 0, fleet.length);
+        extended[fleet.length] = new Bus("MAN", 5.0);
 
         out.println();
-        out.println("=== Після додавання DepositAccount (код обробки той самий) ===");
-        process(out, extended);
+        out.println("=== Після додавання Bus (код обробки той самий) ===");
+        process(out, extended, 100);
     }
 
     /** Обробка однакова для всіх різновидів — без перевірки конкретного типу (instanceof). */
-    private static void process(PrintStream out, Account[] accounts) {
-        double totalAccrual = 0;
-        for (Account a : accounts) {                 // підстановка будь-якого різновиду замість базового типу
-            double accrual = a.monthlyAccrual();
-            totalAccrual += accrual;
-            out.printf(Locale.US, "%-16s власник %-7s -> нарахування за місяць: %+.2f%n",
-                    a.kind(), a.owner(), accrual);
+    private static void process(PrintStream out, Transport[] fleet, double km) {
+        double total = 0;
+        for (Transport t : fleet) {                  // підстановка будь-якого різновиду замість базового типу
+            double cost = t.tripCost(km);
+            total += cost;
+            out.printf(Locale.US, "%-12s (%-7s) -> %.2f%n", t.kind(), t.name(), cost);
         }
-        out.printf(Locale.US, "РАЗОМ нарахувань: %+.2f%n", totalAccrual);
+        out.printf(Locale.US, "РАЗОМ за поїздку: %.2f%n", total);
     }
 }
